@@ -1,0 +1,36 @@
+# terraform.tfvars.example
+# Copy this file to terraform.tfvars and fill in your actual values
+
+# Required: Your Google Cloud Project ID
+project_id = "your-gcp-project-id"
+
+# Optional: Customize the region and zone
+region = "us-central1"
+zone   = "us-central1-a"
+
+# Environment (dev, staging, prod)
+environment = "dev"
+
+# Service Account permissions
+# Set to true only if you need admin-level calendar access
+enable_calendar_admin = false
+
+# API Key Secrets - which secrets to create
+create_gemini_api_key_secret = true
+create_openai_api_key_secret = false
+create_groq_api_key_secret   = false
+
+# API Keys (optional - can be set later via Secret Manager UI)
+# Leave empty to set them manually later
+gemini_api_key = ""
+openai_api_key = ""
+groq_api_key   = ""
+
+# Barbershop configuration
+barbershop_name     = "Barbearia ADK"
+barbershop_timezone = "America/Sao_Paulo"
+barbershop_phone    = "+5511999999999"
+barbershop_address  = "Rua das Flores, 123 - São Paulo, SP"
+
+# Calendar configuration
+calendar_id = "primary"

@@ -102,6 +102,10 @@ def check_env_file():
     
     print("✅ Arquivo .env encontrado")
     
+    # Carregar variáveis do .env antes de verificar
+    from tools.utils.env_config import load_env
+    load_env()
+    
     # Verificar variáveis importantes
     important_vars = [
         ("OPENAI_API_KEY", "Chave do OpenAI"),
@@ -113,7 +117,7 @@ def check_env_file():
     configured = 0
     for var, desc in important_vars:
         value = os.getenv(var)
-        if value and value != f"{var.lower().replace('_', '-')}-here":
+        if value and value != f"{var.lower().replace('_', '-')}-here" and not value.endswith("-here"):
             print(f"   ✅ {desc}: configurado")
             configured += 1
         else:
