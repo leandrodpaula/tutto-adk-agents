@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from google.adk.agents.callback_context import CallbackContext
 
 from google.adk.tools import ToolContext
-from tutto.tools.utils.database import MongoDatabase
+from .utils.database import MongoDatabase
 
 logger = logging.getLogger(__name__)
 

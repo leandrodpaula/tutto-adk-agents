@@ -3,9 +3,9 @@ import logging
 from google.adk.tools import ToolContext
 import requests
 from typing import Optional
-from tutto.config.settings import Settings
+from ..config.settings import Settings
 
-from tutto.tools.utils.database import MongoDatabase
+from .utils.database import MongoDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -22,5 +22,6 @@ def get_calendars_within_date_range_tool(customer_id: str, start_date: str, end_
     else:
         logger.error(f"No calendars found with customer_id {customer_id} between {start_date} and {end_date}")
         return []
+
 
 
