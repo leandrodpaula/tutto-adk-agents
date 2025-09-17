@@ -4,31 +4,49 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'hml'
+      - 'hml-*'
+      - 'prd'
+      - 'prd-*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - hml
+          - prd
+        default: hml
 
 jobs:
-  deploy:
-    # Use environment-level vars/secrets defined in GitHub Environments
+  deploy-hml:
+    name: Deploy to HML
+    if: |
+      startsWith(github.ref, 'refs/tags/hml') ||
+      (github.event_name == 'workflow_dispatch' && inputs.environment == 'hml')
     environment:
-      name: ${{ vars.ENVIRONMENT }}
+      name: hml
     runs-on: ubuntu-latest
     env:
-      # Secrets (from environment)
+      # Secrets (Environment: hml)
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
-      # Vars (from environment)
+      # Vars (Environment: hml)
       PROJECT_ID: ${{ vars.PROJECT_ID }}
       REGION: ${{ vars.REGION }}
       AGENT_NAME: ${{ vars.AGENT_NAME }}
       STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          # Use the service account JSON stored as a secret in the environment
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: Set up Cloud SDK
@@ -47,7 +65,56 @@ jobs:
       - name: Deploy Agent to Agent Engine
         run: |
           adk deploy agent_engine . \
-            --project=${{ env.PROJECT_ID }} \
-            --region=${{ env.REGION }} \
-            --staging_bucket=gs://${{ env.AGENT_NAME }} \
-            --display_name=${{ env.AGENT_NAME }} 
+            --project="${{ env.PROJECT_ID }}" \
+            --region="${{ env.REGION }}" \
+            --staging_bucket="gs://${{ env.STAGING_BUCKET }}" \
+            --display_name="${{ env.AGENT_NAME }}"
+
+  deploy-prd:
+    name: Deploy to PRD
+    if: |
+      startsWith(github.ref, 'refs/tags/prd') ||
+      (github.event_name == 'workflow_dispatch' && inputs.environment == 'prd')
+    environment:
+      name: prd
+    runs-on: ubuntu-latest
+    env:
+      # Secrets (Environment: prd)
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      # Vars (Environment: prd)
+      PROJECT_ID: ${{ vars.PROJECT_ID }}
+      REGION: ${{ vars.REGION }}
+      AGENT_NAME: ${{ vars.AGENT_NAME }}
+      STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Deploy Agent to Agent Engine
+        run: |
+          adk deploy agent_engine . \
+            --project="${{ env.PROJECT_ID }}" \
+            --region="${{ env.REGION }}" \
+            --staging_bucket="gs://${{ env.STAGING_BUCKET }}" \
+            --display_name="${{ env.AGENT_NAME }}"
