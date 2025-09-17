@@ -64,7 +64,7 @@ jobs:
 
       - name: Deploy Agent to Agent Engine
         run: |
-          adk deploy agent_engine . \
+          adk deploy agent_engine tutto \
             --project="${{ env.PROJECT_ID }}" \
             --region="${{ env.REGION }}" \
             --staging_bucket="gs://${{ env.STAGING_BUCKET }}" \
