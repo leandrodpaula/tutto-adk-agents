@@ -116,5 +116,5 @@ jobs:
           adk deploy agent_engine . \
             --project="${{ env.PROJECT_ID }}" \
             --region="${{ env.REGION }}" \
-            --staging_bucket="gs://${{ env.SERVICE_NAME }}-staging-{{ inputs.environment }}" \
-            --display_name="${{ env.AGENT_NAME }}-{{ inputs.environment }}"
+            --staging_bucket="gs://${{ env.SERVICE_NAME }}-staging-${{ inputs.environment }}" \
+            --display_name="${{ env.AGENT_NAME }}-${{ inputs.environment }}"
