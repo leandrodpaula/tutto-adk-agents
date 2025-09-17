@@ -50,4 +50,4 @@ jobs:
             --project=${{ env.PROJECT_ID }} \
             --region=${{ env.REGION }} \
             --staging_bucket=gs://${{ env.AGENT_NAME }} \
-            --display_name=${{ env.AGENT_NAME }}
+            --display_name=${{ env.AGENT_NAME }} 
