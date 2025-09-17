@@ -56,5 +56,5 @@ try:
 
 except ImportError as e:
     print(f"Erro ao importar módulos: {e}")
-    print("Certifique-se de que as dependências estão instaladas: uv sync")
+    print("Certifique-se de que as dependências estão instaladas: pip install -r requirements.txt")
     sys.exit(1)

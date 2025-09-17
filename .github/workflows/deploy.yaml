@@ -1,0 +1,53 @@
+name: Deploy ADK Agent to Agent Engine
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    # Use environment-level vars/secrets defined in GitHub Environments
+    environment:
+      name: ${{ vars.ENVIRONMENT }}
+    runs-on: ubuntu-latest
+    env:
+      # Secrets (from environment)
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      # Vars (from environment)
+      PROJECT_ID: ${{ vars.PROJECT_ID }}
+      REGION: ${{ vars.REGION }}
+      AGENT_NAME: ${{ vars.AGENT_NAME }}
+      STAGING_BUCKET: ${{ vars.STAGING_BUCKET }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          # Use the service account JSON stored as a secret in the environment
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Deploy Agent to Agent Engine
+        run: |
+          adk deploy agent_engine . \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --staging_bucket=gs://${{ env.AGENT_NAME }} \
+            --display_name=${{ env.AGENT_NAME }}
